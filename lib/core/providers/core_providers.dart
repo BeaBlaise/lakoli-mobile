@@ -7,6 +7,7 @@ import '../../data/datasources/feed_remote_datasource.dart';
 import '../../data/datasources/message_remote_datasource.dart';
 import '../../data/datasources/notification_remote_datasource.dart';
 import '../../data/datasources/publication_remote_datasource.dart';
+import '../../data/datasources/video_remote_datasource.dart';
 import '../../data/repositories/commentaire_repository_impl.dart';
 import '../../data/repositories/communaute_repository_impl.dart';
 import '../../data/repositories/ecole_repository_impl.dart';
@@ -14,6 +15,7 @@ import '../../data/repositories/feed_repository_impl.dart';
 import '../../data/repositories/message_repository_impl.dart';
 import '../../data/repositories/notification_repository_impl.dart';
 import '../../data/repositories/publication_repository_impl.dart';
+import '../../data/repositories/video_repository_impl.dart';
 import '../../domain/repositories/commentaire_repository.dart';
 import '../../domain/repositories/communaute_repository.dart';
 import '../../domain/repositories/ecole_repository.dart';
@@ -21,6 +23,7 @@ import '../../domain/repositories/feed_repository.dart';
 import '../../domain/repositories/message_repository.dart';
 import '../../domain/repositories/notification_repository.dart';
 import '../../domain/repositories/publication_repository.dart';
+import '../../domain/repositories/video_repository.dart';
 import '../../presentation/auth/application/auth_controller.dart';
 import '../network/api_client.dart';
 import '../realtime/reverb_service.dart';
@@ -74,4 +77,8 @@ final communauteRepositoryProvider = Provider<CommunauteRepository>((ref) {
 
 final messageRepositoryProvider = Provider<MessageRepository>((ref) {
   return MessageRepositoryImpl(MessageRemoteDataSource(ref.watch(apiClientProvider)));
+});
+
+final videoRepositoryProvider = Provider<VideoRepository>((ref) {
+  return VideoRepositoryImpl(VideoRemoteDataSource(ref.watch(apiClientProvider)));
 });

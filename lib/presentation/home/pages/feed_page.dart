@@ -24,6 +24,11 @@ class FeedPage extends ConsumerWidget {
         title: const Text('Lakoli'),
         actions: [
           IconButton(
+            onPressed: () => context.push('/videos'),
+            icon: const Icon(Icons.videocam_outlined),
+            tooltip: 'Vidéos',
+          ),
+          IconButton(
             onPressed: () => context.push('/messages'),
             icon: const Icon(Icons.mail_outline_rounded),
             tooltip: 'Messages',

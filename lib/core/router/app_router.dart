@@ -17,6 +17,8 @@ import '../../presentation/notifications/pages/notifications_page.dart';
 import '../../presentation/profile/pages/profile_page.dart';
 import '../../presentation/shared/pages/design_system_showcase_page.dart';
 import '../../presentation/shared/pages/splash_page.dart';
+import '../../presentation/videos/pages/video_player_page.dart';
+import '../../presentation/videos/pages/videos_page.dart';
 import 'route_names.dart';
 
 /// Reconstruit l'arbre de routes à chaque changement d'état d'auth — volontairement simple
@@ -91,6 +93,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             otherUserName: extra?['name'],
             otherUserId: extra?['userId'],
           );
+        },
+      ),
+      GoRoute(
+        path: '/videos',
+        builder: (context, state) => const VideosPage(),
+      ),
+      GoRoute(
+        path: '/videos/lecteur',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, String>;
+          return VideoPlayerPage(videoUrl: extra['url']!, title: extra['title']);
         },
       ),
       StatefulShellRoute.indexedStack(
