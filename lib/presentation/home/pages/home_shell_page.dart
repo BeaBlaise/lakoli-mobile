@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-/// Coquille de navigation provisoire (bottom navigation à 5 onglets) — les écrans réels du
-/// fil, de la découverte, etc. arrivent en Phase 5 et suivantes. Ce placeholder valide que
-/// la structure de navigation principale fonctionne dès la Phase 2.
+/// Coquille de navigation à 5 onglets (bottom navigation) — tous réels depuis l'audit du
+/// 2026-08-16 (fil, découverte, création de publication, notifications, profil).
 class HomeShellPage extends StatelessWidget {
   const HomeShellPage({super.key, required this.navigationShell});
 
@@ -33,22 +32,6 @@ class HomeShellPage extends StatelessWidget {
             NavigationDestination(icon: Icon(_icons[i]), label: _labels[i]),
         ],
       ),
-    );
-  }
-}
-
-/// Un seul écran placeholder réutilisé pour les 5 onglets tant que les vraies pages
-/// n'existent pas — évite cinq fichiers identiques pour rien à ce stade.
-class PlaceholderTabPage extends StatelessWidget {
-  const PlaceholderTabPage({super.key, required this.title});
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: Center(child: Text('$title — écran à construire dans une phase suivante')),
     );
   }
 }

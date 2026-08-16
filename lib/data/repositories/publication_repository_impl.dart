@@ -14,6 +14,10 @@ class PublicationRepositoryImpl implements PublicationRepository {
   @override
   Future<Result<void>> unlike(String publicationId) => _run(() => _remote.unlike(publicationId));
 
+  @override
+  Future<Result<void>> create(String contenu, List<String> imagePaths) =>
+      _run(() => _remote.create(contenu, imagePaths));
+
   Future<Result<void>> _run(Future<void> Function() call) async {
     try {
       await call();

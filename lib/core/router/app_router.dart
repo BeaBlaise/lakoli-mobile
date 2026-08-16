@@ -6,6 +6,7 @@ import '../../presentation/auth/pages/login_page.dart';
 import '../../presentation/auth/pages/register_page.dart';
 import '../../presentation/discover/pages/discover_page.dart';
 import '../../presentation/ecole/pages/ecole_profile_page.dart';
+import '../../presentation/home/pages/create_publication_page.dart';
 import '../../presentation/home/pages/feed_page.dart';
 import '../../presentation/home/pages/home_shell_page.dart';
 import '../../presentation/notifications/pages/notifications_page.dart';
@@ -76,7 +77,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(path: '/decouvrir', name: RouteNames.discover, builder: (context, state) => const DiscoverPage()),
             ],
           ),
-          _placeholderBranch('/creer', RouteNames.create, 'Créer'),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(path: '/creer', name: RouteNames.create, builder: (context, state) => const CreatePublicationPage()),
+            ],
+          ),
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -94,15 +99,3 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     ],
   );
 });
-
-StatefulShellBranch _placeholderBranch(String path, String name, String title) {
-  return StatefulShellBranch(
-    routes: [
-      GoRoute(
-        path: path,
-        name: name,
-        builder: (context, state) => PlaceholderTabPage(title: title),
-      ),
-    ],
-  );
-}
