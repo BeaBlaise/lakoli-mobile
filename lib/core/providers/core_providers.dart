@@ -2,12 +2,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/datasources/ecole_remote_datasource.dart';
 import '../../data/datasources/feed_remote_datasource.dart';
+import '../../data/datasources/notification_remote_datasource.dart';
 import '../../data/datasources/publication_remote_datasource.dart';
 import '../../data/repositories/ecole_repository_impl.dart';
 import '../../data/repositories/feed_repository_impl.dart';
+import '../../data/repositories/notification_repository_impl.dart';
 import '../../data/repositories/publication_repository_impl.dart';
 import '../../domain/repositories/ecole_repository.dart';
 import '../../domain/repositories/feed_repository.dart';
+import '../../domain/repositories/notification_repository.dart';
 import '../../domain/repositories/publication_repository.dart';
 import '../../presentation/auth/application/auth_controller.dart';
 import '../network/api_client.dart';
@@ -46,4 +49,8 @@ final publicationRepositoryProvider = Provider<PublicationRepository>((ref) {
 
 final ecoleRepositoryProvider = Provider<EcoleRepository>((ref) {
   return EcoleRepositoryImpl(EcoleRemoteDataSource(ref.watch(apiClientProvider)));
+});
+
+final notificationRepositoryProvider = Provider<NotificationRepository>((ref) {
+  return NotificationRepositoryImpl(NotificationRemoteDataSource(ref.watch(apiClientProvider)));
 });

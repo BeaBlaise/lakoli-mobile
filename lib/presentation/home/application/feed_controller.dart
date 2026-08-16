@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/providers/core_providers.dart';
 import '../../../domain/entities/publication_entity.dart';
+import '../../auth/application/auth_controller.dart';
 
 class FeedState {
   const FeedState({
@@ -49,6 +50,19 @@ final feedControllerProvider = AsyncNotifierProvider<FeedController, FeedState>(
 class FeedController extends AsyncNotifier<FeedState> {
   @override
   Future<FeedState> build() async {
+    // `/` est initialLocation (voir core/router/app_router.dart) : tant que l'état d'auth
+    // initial n'a pas fini de se résoudre (lecture du stockage sécurisé, éventuel appel
+    // /auth/me), le redirect du routeur laisse passer et cette page se construit une première
+    // fois — sans token, pour un utilisateur qui n'a encore jamais de session, ou pendant la
+    // fraction de seconde avant que le token fraîchement enregistré ne soit pris en compte à
+    // l'inscription. Un `AsyncNotifierProvider` classique (pas autoDispose) mettrait cette
+    // erreur "Unauthenticated" en cache indéfiniment, y compris après une connexion réussie
+    // qui redirige vers ce même écran — observé en conditions réelles (émulateur Android,
+    // création de compte). ref.watch() ici force ce build() à se relancer à chaque changement
+    // d'état d'authentification (chargement → non connecté → connecté), pas seulement au tout
+    // premier appel.
+    ref.watch(authControllerProvider);
+
     final result = await ref.read(feedRepositoryProvider).getFeed(page: 1);
     return result.when(
       success: (feed) => FeedState(

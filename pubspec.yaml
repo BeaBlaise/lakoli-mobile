@@ -49,8 +49,15 @@ dependencies:
   # emploi, consommerait batterie/CPU inutilement, et produirait un résultat incohérent avec
   # celui du web — le mobile doit envoyer la vidéo brute, comme le fait le formulaire web.
 
-  # Observabilité
-  sentry_flutter: ^8.13.0
+  # Observabilité — ^8.13.0 résolvait 8.14.2, dont le android/build.gradle fixe en dur
+  # `kotlinOptions.languageVersion = "1.6"`, rejeté par la chaîne Kotlin/Gradle moderne de
+  # cette machine ("Language version 1.6 is no longer supported"), plantant tout build Android
+  # avec `:sentry_flutter:compileDebugKotlin FAILED`. Corrigé en amont dans les versions 9.x
+  # (ce réglage a disparu de leur build.gradle) — aucun changement de code nécessaire côté
+  # Dart pour ce projet, l'API SentryFlutter.init() utilisée ici (dsn/environment/
+  # tracesSampleRate/appRunner) est inchangée entre 8.x et 9.x malgré la montée de version
+  # majeure (voir le guide de migration officiel).
+  sentry_flutter: ^9.27.0
 
   # Utilitaires
   intl: ^0.19.0

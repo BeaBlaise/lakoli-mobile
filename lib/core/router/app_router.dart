@@ -7,8 +7,10 @@ import '../../presentation/auth/pages/register_page.dart';
 import '../../presentation/ecole/pages/ecole_profile_page.dart';
 import '../../presentation/home/pages/feed_page.dart';
 import '../../presentation/home/pages/home_shell_page.dart';
+import '../../presentation/notifications/pages/notifications_page.dart';
 import '../../presentation/profile/pages/profile_page.dart';
 import '../../presentation/shared/pages/design_system_showcase_page.dart';
+import '../../presentation/shared/pages/splash_page.dart';
 import 'route_names.dart';
 
 /// Reconstruit l'arbre de routes à chaque changement d'état d'auth — volontairement simple
@@ -20,17 +22,28 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authControllerProvider);
 
   return GoRouter(
-    initialLocation: '/',
+    initialLocation: '/demarrage',
     redirect: (context, state) {
+      final isSplash = state.matchedLocation == '/demarrage';
+
       // Tant que la session initiale n'a pas été résolue (lecture du stockage sécurisé +
-      // éventuel appel /auth/me), ne redirige nulle part — évite un flash vers l'écran de
-      // connexion pour un utilisateur déjà connecté.
-      if (authState.isLoading) return null;
+      // éventuel appel /auth/me), reste sur l'écran de démarrage plutôt que de laisser
+      // `initialLocation` construire le fil d'accueil pendant ce chargement — ce dernier
+      // déclenchait un vrai appel réseau sans token pour un utilisateur pas encore connecté
+      // (observé en conditions réelles : erreur "Unauthenticated" affichée juste après une
+      // inscription, le résultat de cet appel prématuré restant en cache dans
+      // feedControllerProvider). Voir aussi le ref.watch(authControllerProvider) ajouté dans
+      // FeedController.build() — les deux corrections sont complémentaires, pas redondantes :
+      // celle-ci évite l'appel prématuré, l'autre garantit qu'un appel qui aurait quand même
+      // échoué (session expirée entre-temps, etc.) ne reste jamais bloqué en cache après une
+      // reconnexion.
+      if (authState.isLoading) return isSplash ? null : '/demarrage';
 
       final isAuthenticated = authState.valueOrNull != null;
       final isLoggingIn = state.matchedLocation == '/connexion' || state.matchedLocation == '/inscription';
       final isPublicTool = state.matchedLocation == '/design-system';
 
+      if (isSplash) return isAuthenticated ? '/' : '/connexion';
       if (isPublicTool) return null;
       if (!isAuthenticated && !isLoggingIn) return '/connexion';
       if (isAuthenticated && isLoggingIn) return '/';
@@ -38,6 +51,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
+      GoRoute(path: '/demarrage', name: RouteNames.splash, builder: (context, state) => const SplashPage()),
       GoRoute(path: '/connexion', name: RouteNames.login, builder: (context, state) => const LoginPage()),
       GoRoute(path: '/inscription', name: RouteNames.register, builder: (context, state) => const RegisterPage()),
       GoRoute(
@@ -58,7 +72,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
           _placeholderBranch('/decouvrir', RouteNames.discover, 'Découvrir'),
           _placeholderBranch('/creer', RouteNames.create, 'Créer'),
-          _placeholderBranch('/notifications', RouteNames.notifications, 'Notifications'),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/notifications',
+                name: RouteNames.notifications,
+                builder: (context, state) => const NotificationsPage(),
+              ),
+            ],
+          ),
           StatefulShellBranch(
             routes: [GoRoute(path: '/profil', name: RouteNames.profile, builder: (context, state) => const ProfilePage())],
           ),
