@@ -1,13 +1,16 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/datasources/commentaire_remote_datasource.dart';
 import '../../data/datasources/ecole_remote_datasource.dart';
 import '../../data/datasources/feed_remote_datasource.dart';
 import '../../data/datasources/notification_remote_datasource.dart';
 import '../../data/datasources/publication_remote_datasource.dart';
+import '../../data/repositories/commentaire_repository_impl.dart';
 import '../../data/repositories/ecole_repository_impl.dart';
 import '../../data/repositories/feed_repository_impl.dart';
 import '../../data/repositories/notification_repository_impl.dart';
 import '../../data/repositories/publication_repository_impl.dart';
+import '../../domain/repositories/commentaire_repository.dart';
 import '../../domain/repositories/ecole_repository.dart';
 import '../../domain/repositories/feed_repository.dart';
 import '../../domain/repositories/notification_repository.dart';
@@ -53,4 +56,8 @@ final ecoleRepositoryProvider = Provider<EcoleRepository>((ref) {
 
 final notificationRepositoryProvider = Provider<NotificationRepository>((ref) {
   return NotificationRepositoryImpl(NotificationRemoteDataSource(ref.watch(apiClientProvider)));
+});
+
+final commentaireRepositoryProvider = Provider<CommentaireRepository>((ref) {
+  return CommentaireRepositoryImpl(CommentaireRemoteDataSource(ref.watch(apiClientProvider)));
 });

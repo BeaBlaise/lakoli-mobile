@@ -10,6 +10,7 @@ import '../../shared/widgets/states/empty_state_view.dart';
 import '../../shared/widgets/states/error_state_view.dart';
 import '../../shared/widgets/states/skeleton_box.dart';
 import '../application/feed_controller.dart';
+import '../widgets/comments_sheet.dart';
 
 class FeedPage extends ConsumerWidget {
   const FeedPage({super.key});
@@ -74,6 +75,7 @@ class FeedPage extends ConsumerWidget {
                   return PublicationCardView(
                     publication: publication,
                     onLike: () => ref.read(feedControllerProvider.notifier).toggleLike(publication),
+                    onComment: () => showCommentsSheet(context, publication.id),
                     onOpenEcole: () => context.push('/ecoles/${publication.ecoleId}'),
                   );
                 },
