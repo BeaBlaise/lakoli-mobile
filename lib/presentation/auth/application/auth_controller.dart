@@ -76,4 +76,20 @@ class AuthController extends AsyncNotifier<UserEntity?> {
   Future<void> handleUnauthenticated() async {
     state = const AsyncData(null);
   }
+
+  Future<AppException?> switchActiveRole(UserRole role) async {
+    final previous = state.valueOrNull;
+    state = const AsyncLoading<UserEntity?>().copyWithPrevious(state);
+    final result = await ref.read(authRepositoryProvider).switchActiveRole(role);
+    return result.when(
+      success: (user) {
+        state = AsyncData(user);
+        return null;
+      },
+      failure: (exception) {
+        state = AsyncData(previous);
+        return exception;
+      },
+    );
+  }
 }

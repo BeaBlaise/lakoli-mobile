@@ -4,6 +4,15 @@ import 'package:flutter/material.dart';
 /// marque, une terre cuite chaude sert d'accent ponctuel (jamais dominant), et les neutres ont
 /// un léger biais chaud plutôt qu'un gris pur, pour éviter l'aspect "générique". Chaque teinte a
 /// une variante claire et sombre — voir [AppColors.light] / [AppColors.dark].
+///
+/// `brand*` is pinned to the web app's actual brand blue (`#0A4D9C`, the PWA
+/// `theme_color`/favicon color declared in `resources/views/app.blade.php` and
+/// `public/manifest.webmanifest` on the Laravel side, hue ≈212° matching `--primary` in
+/// `resources/css/app.css`) — an earlier version of this palette used an independently
+/// invented navy (`#1B3A63`) that didn't match the web app at all, so the two apps didn't read
+/// as the same product. `accent*` (terracotta) has no web equivalent to match against — shadcn's
+/// default scaffold on the web side just reuses the primary blue for `--accent`, it was never a
+/// deliberate second brand color — so it's kept as this app's own choice.
 class AppColors {
   const AppColors({
     required this.brand900,
@@ -49,10 +58,10 @@ class AppColors {
   final Color border;
 
   static const light = AppColors(
-    brand900: Color(0xFF10233D),
-    brand600: Color(0xFF1B3A63),
-    brand400: Color(0xFF5C82AD),
-    brand100: Color(0xFFE7EDF4),
+    brand900: Color(0xFF072D6B),
+    brand600: Color(0xFF0A4D9C),
+    brand400: Color(0xFF4A78B8),
+    brand100: Color(0xFFE3EBF6),
     accent600: Color(0xFFB8582F),
     accent100: Color(0xFFF7E7DC),
     success: Color(0xFF2F6B4F),
@@ -71,9 +80,9 @@ class AppColors {
 
   static const dark = AppColors(
     brand900: Color(0xFFDCE7F5),
-    brand600: Color(0xFF7FA8D9),
-    brand400: Color(0xFF4A6FA0),
-    brand100: Color(0xFF202B3A),
+    brand600: Color(0xFF5B9BE0),
+    brand400: Color(0xFF3D6DA0),
+    brand100: Color(0xFF1B2B3F),
     accent600: Color(0xFFE0A07C),
     accent100: Color(0xFF3A2A20),
     success: Color(0xFF7FBE9C),

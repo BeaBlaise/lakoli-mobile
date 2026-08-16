@@ -9,14 +9,20 @@ import '../../shared/widgets/app_button.dart';
 import '../../shared/widgets/app_text_field.dart';
 import '../application/auth_controller.dart';
 
-class LoginPage extends ConsumerStatefulWidget {
-  const LoginPage({super.key});
+/// Inscription utilisateur (personnelle) uniquement — l'inscription école a son propre flux
+/// côté web (formulaire plus long : nom de l'établissement, région/préfecture/commune, type
+/// d'établissement) qui n'a pas encore d'équivalent mobile. `RegisterUserAction` (partagé par
+/// web et API) ne crée que le rôle `user` ; voir CLAUDE.md du dépôt lakoli pour
+/// `RegisterEcoleAction`, son pendant côté école.
+class RegisterPage extends ConsumerStatefulWidget {
+  const RegisterPage({super.key});
 
   @override
-  ConsumerState<LoginPage> createState() => _LoginPageState();
+  ConsumerState<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends ConsumerState<LoginPage> {
+class _RegisterPageState extends ConsumerState<RegisterPage> {
+  final _fullNameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
 
@@ -26,6 +32,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   void dispose() {
+    _fullNameController.dispose();
     _phoneController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -38,7 +45,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       _fieldErrors = null;
     });
 
-    final exception = await ref.read(authControllerProvider.notifier).login(
+    final exception = await ref.read(authControllerProvider.notifier).register(
+          fullName: _fullNameController.text.trim(),
           phone: _phoneController.text.trim(),
           password: _passwordController.text,
         );
@@ -50,8 +58,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       _errorMessage = exception?.message;
       _fieldErrors = exception is ServerException ? exception.errors : null;
     });
-    // En cas de succès, appRouterProvider redirige automatiquement hors de /connexion — voir
-    // core/router/app_router.dart, qui écoute authControllerProvider.
   }
 
   @override
@@ -60,6 +66,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
+      appBar: AppBar(),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -69,15 +76,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    'Connexion',
-                    style: textTheme.labelMedium?.copyWith(color: colors.inkMuted, letterSpacing: 1.2),
-                  ),
-                  const SizedBox(height: AppSpacing.xs),
-                  Text('Lakoli', style: textTheme.displaySmall?.copyWith(color: colors.brand600)),
+                  Text('Créer un compte', style: textTheme.headlineSmall),
                   const SizedBox(height: AppSpacing.xs),
                   Text(
-                    'Connectez-vous pour retrouver votre fil et vos écoles.',
+                    'Suivez vos écoles préférées et découvrez leur actualité.',
                     style: textTheme.bodyMedium?.copyWith(color: colors.inkMuted),
                   ),
                   const SizedBox(height: AppSpacing.xxxl),
@@ -93,6 +95,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     const SizedBox(height: AppSpacing.lg),
                   ],
                   AppTextField(
+                    label: 'Nom complet',
+                    controller: _fullNameController,
+                    enabled: !_submitting,
+                    errorText: _fieldErrors?['full_name']?.first,
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  AppTextField(
                     label: 'Téléphone',
                     hint: '620 00 00 00',
                     controller: _phoneController,
@@ -103,6 +112,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   const SizedBox(height: AppSpacing.lg),
                   AppTextField(
                     label: 'Mot de passe',
+                    hint: '6 caractères minimum',
                     controller: _passwordController,
                     obscureText: true,
                     enabled: !_submitting,
@@ -110,7 +120,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   ),
                   const SizedBox(height: AppSpacing.xxl),
                   AppButton(
-                    label: 'Se connecter',
+                    label: 'Créer mon compte',
                     onPressed: _submitting ? null : _submit,
                     loading: _submitting,
                     fullWidth: true,
@@ -118,8 +128,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   const SizedBox(height: AppSpacing.lg),
                   Center(
                     child: TextButton(
-                      onPressed: _submitting ? null : () => context.push('/inscription'),
-                      child: const Text("Pas encore de compte ? S'inscrire"),
+                      onPressed: _submitting ? null : () => context.pop(),
+                      child: const Text('Déjà un compte ? Se connecter'),
                     ),
                   ),
                 ],

@@ -3,7 +3,11 @@ import 'package:go_router/go_router.dart';
 
 import '../../presentation/auth/application/auth_controller.dart';
 import '../../presentation/auth/pages/login_page.dart';
+import '../../presentation/auth/pages/register_page.dart';
+import '../../presentation/ecole/pages/ecole_profile_page.dart';
+import '../../presentation/home/pages/feed_page.dart';
 import '../../presentation/home/pages/home_shell_page.dart';
+import '../../presentation/profile/pages/profile_page.dart';
 import '../../presentation/shared/pages/design_system_showcase_page.dart';
 import 'route_names.dart';
 
@@ -24,7 +28,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       if (authState.isLoading) return null;
 
       final isAuthenticated = authState.valueOrNull != null;
-      final isLoggingIn = state.matchedLocation == '/connexion';
+      final isLoggingIn = state.matchedLocation == '/connexion' || state.matchedLocation == '/inscription';
       final isPublicTool = state.matchedLocation == '/design-system';
 
       if (isPublicTool) return null;
@@ -35,19 +39,29 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     },
     routes: [
       GoRoute(path: '/connexion', name: RouteNames.login, builder: (context, state) => const LoginPage()),
+      GoRoute(path: '/inscription', name: RouteNames.register, builder: (context, state) => const RegisterPage()),
       GoRoute(
         path: '/design-system',
         name: RouteNames.designSystem,
         builder: (context, state) => const DesignSystemShowcasePage(),
       ),
+      GoRoute(
+        path: '/ecoles/:id',
+        name: RouteNames.ecoleProfile,
+        builder: (context, state) => EcoleProfilePage(ecoleId: state.pathParameters['id']!),
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) => HomeShellPage(navigationShell: navigationShell),
         branches: [
-          _placeholderBranch('/', RouteNames.home, 'Accueil'),
+          StatefulShellBranch(
+            routes: [GoRoute(path: '/', name: RouteNames.home, builder: (context, state) => const FeedPage())],
+          ),
           _placeholderBranch('/decouvrir', RouteNames.discover, 'Découvrir'),
           _placeholderBranch('/creer', RouteNames.create, 'Créer'),
           _placeholderBranch('/notifications', RouteNames.notifications, 'Notifications'),
-          _placeholderBranch('/profil', RouteNames.profile, 'Profil'),
+          StatefulShellBranch(
+            routes: [GoRoute(path: '/profil', name: RouteNames.profile, builder: (context, state) => const ProfilePage())],
+          ),
         ],
       ),
     ],

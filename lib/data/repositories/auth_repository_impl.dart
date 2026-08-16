@@ -60,4 +60,20 @@ class AuthRepositoryImpl implements AuthRepository {
     final token = await _storage.readToken();
     return token != null;
   }
+
+  @override
+  Future<Result<UserEntity>> switchActiveRole(UserRole role) async {
+    try {
+      final user = await _remote.switchActiveRole(_roleToString(role));
+      return Result.success(user.toEntity());
+    } on AppException catch (e) {
+      return Result.failure(e);
+    }
+  }
+
+  String _roleToString(UserRole role) => switch (role) {
+        UserRole.user => 'user',
+        UserRole.ecole => 'ecole',
+        UserRole.admin => 'admin',
+      };
 }

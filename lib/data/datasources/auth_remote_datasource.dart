@@ -32,4 +32,9 @@ class AuthRemoteDataSource {
     final response = await _client.get<Map<String, dynamic>>('/auth/me');
     return UserModel.fromJson(response.data!['user'] as Map<String, dynamic>);
   }
+
+  Future<UserModel> switchActiveRole(String role) async {
+    final response = await _client.post<Map<String, dynamic>>('/profil/basculer', data: {'role': role});
+    return UserModel.fromJson(response.data!['user'] as Map<String, dynamic>);
+  }
 }

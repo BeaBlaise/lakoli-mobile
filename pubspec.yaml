@@ -4,7 +4,11 @@ publish_to: "none"
 version: 0.1.0+1
 
 environment:
-  sdk: ">=3.5.0 <4.0.0"
+  # >=3.8.0 requis par json_serializable (voir "Génération de code" plus bas, section sur la
+  # mise à niveau coordonnée build_runner/freezed/json_serializable/analyzer) — la contrainte
+  # ">=3.5.0" d'origine ne satisfaisait plus cet outil une fois la chaîne de génération mise à
+  # jour pour supporter Dart 3.13 (le SDK réellement installé sur cette machine).
+  sdk: ">=3.8.0 <4.0.0"
 
 dependencies:
   flutter:
@@ -23,15 +27,30 @@ dependencies:
   # Navigation
   go_router: ^14.6.2
 
-  # Temps réel — Reverb parle le protocole Pusher, donc c'est le client compatible
-  # côté Flutter (le web utilise laravel-echo + pusher-js pour la même raison).
-  pusher_channels_flutter: ^2.4.0
+  # Temps réel — Reverb parle le protocole Pusher, mais pusher_channels_flutter (essayé en
+  # premier) s'est révélé, à l'inspection de son code natif Android/iOS, câblé en dur pour ne
+  # jamais accepter qu'un nom de "cluster" Pusher Cloud (options.setCluster() uniquement côté
+  # natif, aucun setHost()/setWsPort() exposé depuis Dart, vérifié jusque dans sa dernière
+  # version 2.6.0) — il ne peut tout simplement pas se connecter à un serveur Reverb auto-hébergé
+  # avec une IP/un nom de domaine personnalisé. dart_pusher_channels est du Dart pur (pas de code
+  # natif, s'appuie sur web_socket_channel déjà utilisé transitivement), expose explicitement
+  # PusherChannelsOptions.fromHost(host:, port:) pour ce cas, et est nettement plus mature que
+  # l'alternative pusher_reverb_flutter (celle-ci publiée en version 0.0.10 il y a quelques
+  # jours seulement au moment de ce choix — trop récente pour y engager l'app).
+  dart_pusher_channels: ^1.3.1
 
   # Médias
   cached_network_image: ^3.4.1
   video_player: ^2.9.2
   image_picker: ^1.1.2
-  video_compress: ^3.1.3
+  # Pas de compression vidéo côté client (ex: video_compress) : le backend a déjà un pipeline
+  # ffmpeg dédié et calibré (App\Jobs\CompressVideoJob, voir CLAUDE.md du dépôt lakoli) qui
+  # tourne en file d'attente après l'upload. Compresser aussi sur le téléphone ferait double
+  # emploi, consommerait batterie/CPU inutilement, et produirait un résultat incohérent avec
+  # celui du web — le mobile doit envoyer la vidéo brute, comme le fait le formulaire web.
+
+  # Observabilité
+  sentry_flutter: ^8.13.0
 
   # Utilitaires
   intl: ^0.19.0
@@ -41,11 +60,45 @@ dependencies:
 
   cupertino_icons: ^1.0.8
 
+  # Modèles générés (voir "Génération de code" plus bas)
+  freezed_annotation: ^3.1.0
+  json_annotation: ^4.12.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
   mocktail: ^1.0.4
+
+  # Génération de code pour les modèles data/ (freezed + json_serializable) — évite la classe de
+  # bugs "le JSON de l'API change de forme, un champ écrit à la main dans un fromJson() reste
+  # désynchronisé sans avertissement du compilateur". Nouveau depuis l'audit du 2026-08-16 ;
+  # les modèles pré-existants (Ecole/Publication/Commentaire) restent écrits à la main pour
+  # l'instant — seul UserModel (touché par l'ajout de active_role/available_roles) a été migré,
+  # les autres seront convertis au fil de l'eau plutôt que dans une réécriture d'un coup.
+  #
+  # Versions précises non anodines : `dart run build_runner build` plantait systématiquement
+  # avec `Exception: Missing implementation of visitDotShorthandPropertyAccess`, dès qu'il
+  # analysait n'importe quel fichier import(ant) Flutter (donc tous) — le SDK réellement
+  # installé sur cette machine (Flutter 3.47.0 stable / Dart 3.13.0) est plus récent que
+  # `analyzer` 7.7.1, la version que build_runner ^2.4.13 + freezed ^2.5.7 +
+  # json_serializable ^6.8.0 résolvaient par défaut, et qui ne reconnaît pas encore la syntaxe
+  # Dart 3.13 ("dot shorthand") déjà présente dans le SDK Flutter. Même catégorie de bug que
+  # l'incompatibilité PHP 8.5/Carbon documentée dans le dépôt lakoli (CLAUDE.md) — un outil de
+  # génération dont une dépendance transitive n'a pas rattrapé une version de langage récente.
+  # Une simple `dependency_overrides: analyzer: ^14.1.0` a été essayée en premier mais casse
+  # dart_style 3.1.1 (API AST différente entre versions majeures d'analyzer — `NamedExpression`
+  # n'existe plus). La vraie source du problème : build_runner/freezed/json_serializable
+  # n'étaient eux-mêmes pas assez récents pour exiger un analyzer compatible Dart 3.13 — les
+  # bumper vers ces versions précises (trouvées par élimination, en suivant les messages
+  # d'erreur du solveur de dépendances de pub à chaque conflit) laisse pub résoudre lui-même un
+  # jeu cohérent : analyzer 10.2.0 + dart_style 3.1.7, qui reconnaît bien la syntaxe. Nécessite
+  # aussi `environment.sdk: ">=3.8.0"` (relevé plus haut) et `json_annotation: ^4.12.0` —
+  # json_serializable 6.14.1 refuse de générer sinon (avertissement silencieux, pas une erreur
+  # dure, donc facile à manquer : le fichier est simplement "skipped" sans .g.dart produit).
+  build_runner: ^2.15.1
+  freezed: ^3.2.5
+  json_serializable: ^6.14.1
 
 flutter:
   uses-material-design: true

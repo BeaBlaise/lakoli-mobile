@@ -1,50 +1,42 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 import '../../domain/entities/user_entity.dart';
 
-/// Parse la forme renvoyée par App\Http\Resources\UserResource. `phone`/`email` sont
-/// `$this->when(...)` côté Laravel — absents du JSON (pas juste null) pour tout profil qui
-/// n'est pas le sien, donc lus ici avec un accès optionnel plutôt qu'un champ requis.
-class UserModel {
-  const UserModel({
-    required this.id,
-    required this.fullName,
-    required this.role,
-    this.phone,
-    this.email,
-    this.avatarUrl,
-    this.coverPhotoUrl,
-    this.bio,
-    this.activeRole,
-    this.availableRoles = const [],
-  });
+part 'user_model.freezed.dart';
+part 'user_model.g.dart';
 
-  final String id;
-  final String fullName;
-  final String? role;
-  final String? phone;
-  final String? email;
-  final String? avatarUrl;
-  final String? coverPhotoUrl;
-  final String? bio;
-  final String? activeRole;
-  final List<String> availableRoles;
+/// Parse la forme renvoyée par App\Http\Resources\UserResource. `phone`/`email`/`active_role`/
+/// `available_roles` sont `$this->when(...)` côté Laravel — absents du JSON (pas juste null)
+/// pour tout profil qui n'est pas le sien, donc lus ici avec un accès optionnel plutôt qu'un
+/// champ requis.
+///
+/// Généré avec freezed + json_serializable (voir pubspec.yaml, "Génération de code") plutôt
+/// qu'un fromJson()/toEntity() écrit à la main comme avant — élimine la classe de bugs "l'API
+/// change de forme, le parsing manuel reste désynchronisé sans avertissement du compilateur".
+/// Après toute modification des champs ci-dessous, régénérer avec :
+///   dart run build_runner build --delete-conflicting-outputs
+@freezed
+abstract class UserModel with _$UserModel {
+  const UserModel._();
 
-  factory UserModel.fromJson(Map<String, dynamic> json) {
-    return UserModel(
-      id: json['id'] as String,
-      fullName: json['full_name'] as String,
-      role: json['role'] as String?,
-      phone: json['phone'] as String?,
-      email: json['email'] as String?,
-      avatarUrl: json['avatar_url'] as String?,
-      coverPhotoUrl: json['cover_photo_url'] as String?,
-      bio: json['bio'] as String?,
-      // active_role / available_roles ne viennent pas encore de l'API mobile aujourd'hui —
-      // UserResource ne les expose pas (contrairement à HandleInertiaRequests côté web).
-      // Lus ici en tolérant leur absence : voir l'audit Phase 1, section bascule de profil.
-      activeRole: json['active_role'] as String?,
-      availableRoles: (json['available_roles'] as List?)?.cast<String>() ?? const [],
-    );
-  }
+  const factory UserModel({
+    required String id,
+    @JsonKey(name: 'full_name') required String fullName,
+    String? role,
+    String? phone,
+    String? email,
+    @JsonKey(name: 'avatar_url') String? avatarUrl,
+    @JsonKey(name: 'cover_photo_url') String? coverPhotoUrl,
+    String? bio,
+    // UserResource (api) now exposes these for the authenticated user's own profile,
+    // matching HandleInertiaRequests on the web side (fixed 2026-08-16). Still nullable/
+    // defaulted since /ecoles, /publications, etc. embed other users' UserResource shapes
+    // without them ($this->when(... own profile only ...) on the Laravel side).
+    @JsonKey(name: 'active_role') String? activeRole,
+    @JsonKey(name: 'available_roles') @Default(<String>[]) List<String> availableRoles,
+  }) = _UserModel;
+
+  factory UserModel.fromJson(Map<String, dynamic> json) => _$UserModelFromJson(json);
 
   UserEntity toEntity() {
     return UserEntity(

@@ -15,4 +15,9 @@ abstract interface class AuthRepository {
   /// Session déjà connue en local (token stocké), sans appel réseau — utilisé au démarrage
   /// pour décider immédiatement de l'écran initial pendant que [currentUser] revalide.
   Future<bool> hasStoredSession();
+
+  /// Bascule de profil (compte double-rôle utilisateur/école) — voir CLAUDE.md du dépôt lakoli,
+  /// section "Bascule de profil". [role] doit être l'une des valeurs de [UserRole] déjà tenues
+  /// par le compte (voir [UserEntity.availableRoles]) ; le serveur refuse sinon (403).
+  Future<Result<UserEntity>> switchActiveRole(UserRole role);
 }

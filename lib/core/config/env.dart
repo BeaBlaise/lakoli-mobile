@@ -19,9 +19,8 @@ class Env {
     defaultValue: 'http://10.0.2.2:8000/api/v1',
   );
 
-  /// Hôte du serveur Reverb (WebSocket), sans schéma ni port — pusher_channels_flutter
-  /// les prend séparément. Voir la note sur l'auth des canaux privés dans
-  /// core/realtime/reverb_service.dart : ce point n'est pas encore vérifié côté backend.
+  /// Hôte du serveur Reverb (WebSocket), sans schéma ni port — voir core/realtime/
+  /// reverb_service.dart (PusherChannelsOptions.fromHost les prend séparément).
   static const String reverbHost = String.fromEnvironment(
     'REVERB_HOST',
     defaultValue: '10.0.2.2',
@@ -41,6 +40,12 @@ class Env {
     'REVERB_APP_KEY',
     defaultValue: '',
   );
+
+  /// Vide par défaut : Sentry n'est initialisé (voir main.dart) que si un vrai DSN est fourni,
+  /// pour que l'app reste utilisable en développement sans compte Sentry configuré.
+  ///
+  ///   flutter run --dart-define=SENTRY_DSN=https://xxxx@oyyyy.ingest.sentry.io/zzzz
+  static const String sentryDsn = String.fromEnvironment('SENTRY_DSN', defaultValue: '');
 
   static const bool isProduction = bool.fromEnvironment('dart.vm.product');
 }
