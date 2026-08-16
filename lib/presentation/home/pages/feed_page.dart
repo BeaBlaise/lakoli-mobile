@@ -20,7 +20,16 @@ class FeedPage extends ConsumerWidget {
     final feedState = ref.watch(feedControllerProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Lakoli')),
+      appBar: AppBar(
+        title: const Text('Lakoli'),
+        actions: [
+          IconButton(
+            onPressed: () => context.push('/communautes'),
+            icon: const Icon(Icons.groups_outlined),
+            tooltip: 'Communautés',
+          ),
+        ],
+      ),
       body: feedState.when(
         loading: () => const _FeedSkeleton(),
         error: (error, _) => Center(

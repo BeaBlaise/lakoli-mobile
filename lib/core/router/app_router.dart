@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../presentation/auth/application/auth_controller.dart';
 import '../../presentation/auth/pages/login_page.dart';
 import '../../presentation/auth/pages/register_page.dart';
+import '../../presentation/communities/pages/communaute_chat_page.dart';
+import '../../presentation/communities/pages/communautes_list_page.dart';
 import '../../presentation/discover/pages/discover_page.dart';
 import '../../presentation/ecole/pages/ecole_profile_page.dart';
 import '../../presentation/home/pages/create_publication_page.dart';
@@ -65,6 +67,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/ecoles/:id',
         name: RouteNames.ecoleProfile,
         builder: (context, state) => EcoleProfilePage(ecoleId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/communautes',
+        builder: (context, state) => const CommunautesListPage(),
+      ),
+      GoRoute(
+        path: '/communautes/:id',
+        builder: (context, state) => CommunauteChatPage(communauteId: state.pathParameters['id']!),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) => HomeShellPage(navigationShell: navigationShell),
