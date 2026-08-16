@@ -11,6 +11,8 @@ import '../../presentation/ecole/pages/ecole_profile_page.dart';
 import '../../presentation/home/pages/create_publication_page.dart';
 import '../../presentation/home/pages/feed_page.dart';
 import '../../presentation/home/pages/home_shell_page.dart';
+import '../../presentation/messages/pages/chat_page.dart';
+import '../../presentation/messages/pages/conversations_list_page.dart';
 import '../../presentation/notifications/pages/notifications_page.dart';
 import '../../presentation/profile/pages/profile_page.dart';
 import '../../presentation/shared/pages/design_system_showcase_page.dart';
@@ -75,6 +77,21 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/communautes/:id',
         builder: (context, state) => CommunauteChatPage(communauteId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/messages',
+        builder: (context, state) => const ConversationsListPage(),
+      ),
+      GoRoute(
+        path: '/messages/:id',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, String>?;
+          return ChatPage(
+            conversationId: state.pathParameters['id']!,
+            otherUserName: extra?['name'],
+            otherUserId: extra?['userId'],
+          );
+        },
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) => HomeShellPage(navigationShell: navigationShell),
