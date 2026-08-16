@@ -1,10 +1,22 @@
 import '../../core/network/api_client.dart';
+import '../../domain/entities/paginated_result.dart';
 import '../models/ecole_model.dart';
 
 class EcoleRemoteDataSource {
   EcoleRemoteDataSource(this._client);
 
   final ApiClient _client;
+
+  /// GET /api/v1/ecoles — Api\V1\EcoleController::index() côté Laravel. Ne renvoie que les
+  /// écoles validées (`statut = Validee`), voir ce contrôleur : la recherche/découverte
+  /// mobile n'a donc pas besoin de filtrer ça elle-même.
+  Future<PaginatedResult<EcoleSummaryModel>> search({String? query, int page = 1}) async {
+    final response = await _client.get<Map<String, dynamic>>(
+      '/ecoles',
+      queryParameters: {if (query != null && query.isNotEmpty) 'q': query, 'page': page},
+    );
+    return PaginatedResult<EcoleSummaryModel>.fromJson(response.data!, EcoleSummaryModel.fromJson);
+  }
 
   Future<EcoleModel> show(String ecoleId) async {
     final response = await _client.get<Map<String, dynamic>>('/ecoles/$ecoleId');

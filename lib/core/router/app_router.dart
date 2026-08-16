@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../presentation/auth/application/auth_controller.dart';
 import '../../presentation/auth/pages/login_page.dart';
 import '../../presentation/auth/pages/register_page.dart';
+import '../../presentation/discover/pages/discover_page.dart';
 import '../../presentation/ecole/pages/ecole_profile_page.dart';
 import '../../presentation/home/pages/feed_page.dart';
 import '../../presentation/home/pages/home_shell_page.dart';
@@ -70,7 +71,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [GoRoute(path: '/', name: RouteNames.home, builder: (context, state) => const FeedPage())],
           ),
-          _placeholderBranch('/decouvrir', RouteNames.discover, 'Découvrir'),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(path: '/decouvrir', name: RouteNames.discover, builder: (context, state) => const DiscoverPage()),
+            ],
+          ),
           _placeholderBranch('/creer', RouteNames.create, 'Créer'),
           StatefulShellBranch(
             routes: [
