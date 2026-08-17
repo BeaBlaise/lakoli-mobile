@@ -9,7 +9,7 @@ import '../../presentation/communities/pages/communautes_list_page.dart';
 import '../../presentation/discover/pages/discover_page.dart';
 import '../../presentation/ecole/pages/ecole_profile_page.dart';
 import '../../presentation/home/pages/create_publication_page.dart';
-import '../../presentation/home/pages/feed_page.dart';
+import '../../presentation/home/pages/home_page.dart';
 import '../../presentation/home/pages/home_shell_page.dart';
 import '../../presentation/messages/pages/chat_page.dart';
 import '../../presentation/messages/pages/conversations_list_page.dart';
@@ -110,7 +110,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state, navigationShell) => HomeShellPage(navigationShell: navigationShell),
         branches: [
           StatefulShellBranch(
-            routes: [GoRoute(path: '/', name: RouteNames.home, builder: (context, state) => const FeedPage())],
+            routes: [GoRoute(path: '/', name: RouteNames.home, builder: (context, state) => const HomePage())],
           ),
           StatefulShellBranch(
             routes: [

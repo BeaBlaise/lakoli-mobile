@@ -1,11 +1,23 @@
 import 'package:dio/dio.dart';
 
 import '../../core/network/api_client.dart';
+import '../../domain/entities/paginated_result.dart';
+import '../models/publication_model.dart';
 
 class PublicationRemoteDataSource {
   PublicationRemoteDataSource(this._client);
 
   final ApiClient _client;
+
+  Future<PaginatedResult<PublicationModel>> listForEcole(String ecoleId, {int page = 1}) async {
+    final response = await _client.get<Map<String, dynamic>>(
+      '/ecoles/$ecoleId/publications',
+      queryParameters: {'page': page},
+    );
+    return PaginatedResult<PublicationModel>.fromJson(response.data!, PublicationModel.fromJson);
+  }
+
+  Future<void> delete(String publicationId) => _client.delete<void>('/publications/$publicationId');
 
   Future<void> like(String publicationId) => _client.post<void>('/publications/$publicationId/like');
 

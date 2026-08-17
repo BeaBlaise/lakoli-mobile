@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/datasources/commentaire_remote_datasource.dart';
 import '../../data/datasources/communaute_remote_datasource.dart';
+import '../../data/datasources/ecole_dashboard_remote_datasource.dart';
 import '../../data/datasources/ecole_remote_datasource.dart';
 import '../../data/datasources/feed_remote_datasource.dart';
 import '../../data/datasources/message_remote_datasource.dart';
@@ -10,6 +11,7 @@ import '../../data/datasources/publication_remote_datasource.dart';
 import '../../data/datasources/video_remote_datasource.dart';
 import '../../data/repositories/commentaire_repository_impl.dart';
 import '../../data/repositories/communaute_repository_impl.dart';
+import '../../data/repositories/ecole_dashboard_repository_impl.dart';
 import '../../data/repositories/ecole_repository_impl.dart';
 import '../../data/repositories/feed_repository_impl.dart';
 import '../../data/repositories/message_repository_impl.dart';
@@ -18,6 +20,7 @@ import '../../data/repositories/publication_repository_impl.dart';
 import '../../data/repositories/video_repository_impl.dart';
 import '../../domain/repositories/commentaire_repository.dart';
 import '../../domain/repositories/communaute_repository.dart';
+import '../../domain/repositories/ecole_dashboard_repository.dart';
 import '../../domain/repositories/ecole_repository.dart';
 import '../../domain/repositories/feed_repository.dart';
 import '../../domain/repositories/message_repository.dart';
@@ -81,4 +84,8 @@ final messageRepositoryProvider = Provider<MessageRepository>((ref) {
 
 final videoRepositoryProvider = Provider<VideoRepository>((ref) {
   return VideoRepositoryImpl(VideoRemoteDataSource(ref.watch(apiClientProvider)));
+});
+
+final ecoleDashboardRepositoryProvider = Provider<EcoleDashboardRepository>((ref) {
+  return EcoleDashboardRepositoryImpl(EcoleDashboardRemoteDataSource(ref.watch(apiClientProvider)));
 });
