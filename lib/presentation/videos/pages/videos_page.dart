@@ -22,13 +22,16 @@ class VideosPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authControllerProvider).valueOrNull;
     final isEcole = user?.activeRole == UserRole.ecole;
+    // VideoPolicy::create() côté Laravel exige ecole.statut === Validee, même règle que
+    // PublicationPolicy — voir CreatePublicationPage pour le même contrôle.
+    final canUpload = isEcole && user?.ecole?.statut == EcoleStatut.validee;
     final feedState = ref.watch(videosFeedControllerProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Vidéos'),
         actions: [
-          if (isEcole)
+          if (canUpload)
             IconButton(
               onPressed: () => _pickAndUpload(context, ref),
               icon: const Icon(Icons.add_circle_outline_rounded),
@@ -40,7 +43,18 @@ class VideosPage extends ConsumerWidget {
         onRefresh: () => ref.read(videosFeedControllerProvider.notifier).refresh(),
         child: CustomScrollView(
           slivers: [
-            if (isEcole) const SliverToBoxAdapter(child: _MyVideosSection()),
+            if (isEcole)
+              SliverToBoxAdapter(
+                child: canUpload
+                    ? const _MyVideosSection()
+                    : Padding(
+                        padding: const EdgeInsets.all(AppSpacing.lg),
+                        child: Text(
+                          'Un administrateur doit valider votre école avant que vous puissiez publier des vidéos.',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ),
+              ),
             feedState.when(
               loading: () => const SliverFillRemaining(child: Center(child: CircularProgressIndicator())),
               error: (error, _) => SliverFillRemaining(

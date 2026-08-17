@@ -42,6 +42,26 @@ class CreatePublicationPage extends ConsumerWidget {
       );
     }
 
+    // PublicationPolicy::create() côté Laravel exige ecole.statut === Validee — une école
+    // fraîchement inscrite (RegisterEcoleAction) démarre toujours EN_ATTENTE. Sans ce contrôle,
+    // le formulaire s'afficherait normalement puis échouerait en 403 à la soumission, sans
+    // explication pour l'utilisateur.
+    if (user?.ecole?.statut != EcoleStatut.validee) {
+      final statut = user?.ecole?.statut;
+      return Scaffold(
+        appBar: AppBar(title: const Text('Créer')),
+        body: Center(
+          child: EmptyStateView(
+            icon: statut == EcoleStatut.refusee ? Icons.error_outline_rounded : Icons.hourglass_empty_rounded,
+            title: statut == EcoleStatut.refusee ? 'Inscription refusée' : 'École en attente de validation',
+            message: statut == EcoleStatut.refusee
+                ? "La validation de votre école a été refusée. Contactez l'équipe Lakoli pour plus d'informations."
+                : 'Un administrateur doit valider votre école avant que vous puissiez publier. Cela peut prendre quelques jours.',
+          ),
+        ),
+      );
+    }
+
     return const _CreatePublicationForm();
   }
 }

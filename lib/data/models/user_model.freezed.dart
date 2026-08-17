@@ -19,7 +19,12 @@ mixin _$UserModel {
 // matching HandleInertiaRequests on the web side (fixed 2026-08-16). Still nullable/
 // defaulted since /ecoles, /publications, etc. embed other users' UserResource shapes
 // without them ($this->when(... own profile only ...) on the Laravel side).
-@JsonKey(name: 'active_role') String? get activeRole;@JsonKey(name: 'available_roles') List<String> get availableRoles;
+@JsonKey(name: 'active_role') String? get activeRole;@JsonKey(name: 'available_roles') List<String> get availableRoles;// Idem : self-only côté Laravel (voir UserResource, ajouté 2026-08-17 pour que le mobile
+// puisse détecter une école fraîchement inscrite encore EN_ATTENTE de validation admin —
+// voir CreatePublicationPage/VideosPage). `ecole` reste une Map brute plutôt qu'une classe
+// freezed dédiée : trois champs, jamais manipulé ailleurs qu'ici, ne justifie pas une
+// nouvelle classe générée.
+ Map<String, dynamic>? get ecole;@JsonKey(name: 'unread_notifications_count') int get unreadNotificationsCount;@JsonKey(name: 'unread_communautes_count') int get unreadCommunautesCount;@JsonKey(name: 'unread_messages_count') int get unreadMessagesCount;
 /// Create a copy of UserModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -32,16 +37,16 @@ $UserModelCopyWith<UserModel> get copyWith => _$UserModelCopyWithImpl<UserModel>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserModel&&(identical(other.id, id) || other.id == id)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.role, role) || other.role == role)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.email, email) || other.email == email)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.coverPhotoUrl, coverPhotoUrl) || other.coverPhotoUrl == coverPhotoUrl)&&(identical(other.bio, bio) || other.bio == bio)&&(identical(other.activeRole, activeRole) || other.activeRole == activeRole)&&const DeepCollectionEquality().equals(other.availableRoles, availableRoles));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserModel&&(identical(other.id, id) || other.id == id)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.role, role) || other.role == role)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.email, email) || other.email == email)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.coverPhotoUrl, coverPhotoUrl) || other.coverPhotoUrl == coverPhotoUrl)&&(identical(other.bio, bio) || other.bio == bio)&&(identical(other.activeRole, activeRole) || other.activeRole == activeRole)&&const DeepCollectionEquality().equals(other.availableRoles, availableRoles)&&const DeepCollectionEquality().equals(other.ecole, ecole)&&(identical(other.unreadNotificationsCount, unreadNotificationsCount) || other.unreadNotificationsCount == unreadNotificationsCount)&&(identical(other.unreadCommunautesCount, unreadCommunautesCount) || other.unreadCommunautesCount == unreadCommunautesCount)&&(identical(other.unreadMessagesCount, unreadMessagesCount) || other.unreadMessagesCount == unreadMessagesCount));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,fullName,role,phone,email,avatarUrl,coverPhotoUrl,bio,activeRole,const DeepCollectionEquality().hash(availableRoles));
+int get hashCode => Object.hash(runtimeType,id,fullName,role,phone,email,avatarUrl,coverPhotoUrl,bio,activeRole,const DeepCollectionEquality().hash(availableRoles),const DeepCollectionEquality().hash(ecole),unreadNotificationsCount,unreadCommunautesCount,unreadMessagesCount);
 
 @override
 String toString() {
-  return 'UserModel(id: $id, fullName: $fullName, role: $role, phone: $phone, email: $email, avatarUrl: $avatarUrl, coverPhotoUrl: $coverPhotoUrl, bio: $bio, activeRole: $activeRole, availableRoles: $availableRoles)';
+  return 'UserModel(id: $id, fullName: $fullName, role: $role, phone: $phone, email: $email, avatarUrl: $avatarUrl, coverPhotoUrl: $coverPhotoUrl, bio: $bio, activeRole: $activeRole, availableRoles: $availableRoles, ecole: $ecole, unreadNotificationsCount: $unreadNotificationsCount, unreadCommunautesCount: $unreadCommunautesCount, unreadMessagesCount: $unreadMessagesCount)';
 }
 
 
@@ -52,7 +57,7 @@ abstract mixin class $UserModelCopyWith<$Res>  {
   factory $UserModelCopyWith(UserModel value, $Res Function(UserModel) _then) = _$UserModelCopyWithImpl;
 @useResult
 $Res call({
- String id,@JsonKey(name: 'full_name') String fullName, String? role, String? phone, String? email,@JsonKey(name: 'avatar_url') String? avatarUrl,@JsonKey(name: 'cover_photo_url') String? coverPhotoUrl, String? bio,@JsonKey(name: 'active_role') String? activeRole,@JsonKey(name: 'available_roles') List<String> availableRoles
+ String id,@JsonKey(name: 'full_name') String fullName, String? role, String? phone, String? email,@JsonKey(name: 'avatar_url') String? avatarUrl,@JsonKey(name: 'cover_photo_url') String? coverPhotoUrl, String? bio,@JsonKey(name: 'active_role') String? activeRole,@JsonKey(name: 'available_roles') List<String> availableRoles, Map<String, dynamic>? ecole,@JsonKey(name: 'unread_notifications_count') int unreadNotificationsCount,@JsonKey(name: 'unread_communautes_count') int unreadCommunautesCount,@JsonKey(name: 'unread_messages_count') int unreadMessagesCount
 });
 
 
@@ -69,7 +74,7 @@ class _$UserModelCopyWithImpl<$Res>
 
 /// Create a copy of UserModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? fullName = null,Object? role = freezed,Object? phone = freezed,Object? email = freezed,Object? avatarUrl = freezed,Object? coverPhotoUrl = freezed,Object? bio = freezed,Object? activeRole = freezed,Object? availableRoles = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? fullName = null,Object? role = freezed,Object? phone = freezed,Object? email = freezed,Object? avatarUrl = freezed,Object? coverPhotoUrl = freezed,Object? bio = freezed,Object? activeRole = freezed,Object? availableRoles = null,Object? ecole = freezed,Object? unreadNotificationsCount = null,Object? unreadCommunautesCount = null,Object? unreadMessagesCount = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,fullName: null == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
@@ -81,7 +86,11 @@ as String?,coverPhotoUrl: freezed == coverPhotoUrl ? _self.coverPhotoUrl : cover
 as String?,bio: freezed == bio ? _self.bio : bio // ignore: cast_nullable_to_non_nullable
 as String?,activeRole: freezed == activeRole ? _self.activeRole : activeRole // ignore: cast_nullable_to_non_nullable
 as String?,availableRoles: null == availableRoles ? _self.availableRoles : availableRoles // ignore: cast_nullable_to_non_nullable
-as List<String>,
+as List<String>,ecole: freezed == ecole ? _self.ecole : ecole // ignore: cast_nullable_to_non_nullable
+as Map<String, dynamic>?,unreadNotificationsCount: null == unreadNotificationsCount ? _self.unreadNotificationsCount : unreadNotificationsCount // ignore: cast_nullable_to_non_nullable
+as int,unreadCommunautesCount: null == unreadCommunautesCount ? _self.unreadCommunautesCount : unreadCommunautesCount // ignore: cast_nullable_to_non_nullable
+as int,unreadMessagesCount: null == unreadMessagesCount ? _self.unreadMessagesCount : unreadMessagesCount // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 
@@ -166,10 +175,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'full_name')  String fullName,  String? role,  String? phone,  String? email, @JsonKey(name: 'avatar_url')  String? avatarUrl, @JsonKey(name: 'cover_photo_url')  String? coverPhotoUrl,  String? bio, @JsonKey(name: 'active_role')  String? activeRole, @JsonKey(name: 'available_roles')  List<String> availableRoles)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'full_name')  String fullName,  String? role,  String? phone,  String? email, @JsonKey(name: 'avatar_url')  String? avatarUrl, @JsonKey(name: 'cover_photo_url')  String? coverPhotoUrl,  String? bio, @JsonKey(name: 'active_role')  String? activeRole, @JsonKey(name: 'available_roles')  List<String> availableRoles,  Map<String, dynamic>? ecole, @JsonKey(name: 'unread_notifications_count')  int unreadNotificationsCount, @JsonKey(name: 'unread_communautes_count')  int unreadCommunautesCount, @JsonKey(name: 'unread_messages_count')  int unreadMessagesCount)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UserModel() when $default != null:
-return $default(_that.id,_that.fullName,_that.role,_that.phone,_that.email,_that.avatarUrl,_that.coverPhotoUrl,_that.bio,_that.activeRole,_that.availableRoles);case _:
+return $default(_that.id,_that.fullName,_that.role,_that.phone,_that.email,_that.avatarUrl,_that.coverPhotoUrl,_that.bio,_that.activeRole,_that.availableRoles,_that.ecole,_that.unreadNotificationsCount,_that.unreadCommunautesCount,_that.unreadMessagesCount);case _:
   return orElse();
 
 }
@@ -187,10 +196,10 @@ return $default(_that.id,_that.fullName,_that.role,_that.phone,_that.email,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'full_name')  String fullName,  String? role,  String? phone,  String? email, @JsonKey(name: 'avatar_url')  String? avatarUrl, @JsonKey(name: 'cover_photo_url')  String? coverPhotoUrl,  String? bio, @JsonKey(name: 'active_role')  String? activeRole, @JsonKey(name: 'available_roles')  List<String> availableRoles)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'full_name')  String fullName,  String? role,  String? phone,  String? email, @JsonKey(name: 'avatar_url')  String? avatarUrl, @JsonKey(name: 'cover_photo_url')  String? coverPhotoUrl,  String? bio, @JsonKey(name: 'active_role')  String? activeRole, @JsonKey(name: 'available_roles')  List<String> availableRoles,  Map<String, dynamic>? ecole, @JsonKey(name: 'unread_notifications_count')  int unreadNotificationsCount, @JsonKey(name: 'unread_communautes_count')  int unreadCommunautesCount, @JsonKey(name: 'unread_messages_count')  int unreadMessagesCount)  $default,) {final _that = this;
 switch (_that) {
 case _UserModel():
-return $default(_that.id,_that.fullName,_that.role,_that.phone,_that.email,_that.avatarUrl,_that.coverPhotoUrl,_that.bio,_that.activeRole,_that.availableRoles);case _:
+return $default(_that.id,_that.fullName,_that.role,_that.phone,_that.email,_that.avatarUrl,_that.coverPhotoUrl,_that.bio,_that.activeRole,_that.availableRoles,_that.ecole,_that.unreadNotificationsCount,_that.unreadCommunautesCount,_that.unreadMessagesCount);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -207,10 +216,10 @@ return $default(_that.id,_that.fullName,_that.role,_that.phone,_that.email,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id, @JsonKey(name: 'full_name')  String fullName,  String? role,  String? phone,  String? email, @JsonKey(name: 'avatar_url')  String? avatarUrl, @JsonKey(name: 'cover_photo_url')  String? coverPhotoUrl,  String? bio, @JsonKey(name: 'active_role')  String? activeRole, @JsonKey(name: 'available_roles')  List<String> availableRoles)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id, @JsonKey(name: 'full_name')  String fullName,  String? role,  String? phone,  String? email, @JsonKey(name: 'avatar_url')  String? avatarUrl, @JsonKey(name: 'cover_photo_url')  String? coverPhotoUrl,  String? bio, @JsonKey(name: 'active_role')  String? activeRole, @JsonKey(name: 'available_roles')  List<String> availableRoles,  Map<String, dynamic>? ecole, @JsonKey(name: 'unread_notifications_count')  int unreadNotificationsCount, @JsonKey(name: 'unread_communautes_count')  int unreadCommunautesCount, @JsonKey(name: 'unread_messages_count')  int unreadMessagesCount)?  $default,) {final _that = this;
 switch (_that) {
 case _UserModel() when $default != null:
-return $default(_that.id,_that.fullName,_that.role,_that.phone,_that.email,_that.avatarUrl,_that.coverPhotoUrl,_that.bio,_that.activeRole,_that.availableRoles);case _:
+return $default(_that.id,_that.fullName,_that.role,_that.phone,_that.email,_that.avatarUrl,_that.coverPhotoUrl,_that.bio,_that.activeRole,_that.availableRoles,_that.ecole,_that.unreadNotificationsCount,_that.unreadCommunautesCount,_that.unreadMessagesCount);case _:
   return null;
 
 }
@@ -222,7 +231,7 @@ return $default(_that.id,_that.fullName,_that.role,_that.phone,_that.email,_that
 @JsonSerializable()
 
 class _UserModel extends UserModel {
-  const _UserModel({required this.id, @JsonKey(name: 'full_name') required this.fullName, this.role, this.phone, this.email, @JsonKey(name: 'avatar_url') this.avatarUrl, @JsonKey(name: 'cover_photo_url') this.coverPhotoUrl, this.bio, @JsonKey(name: 'active_role') this.activeRole, @JsonKey(name: 'available_roles') final  List<String> availableRoles = const <String>[]}): _availableRoles = availableRoles,super._();
+  const _UserModel({required this.id, @JsonKey(name: 'full_name') required this.fullName, this.role, this.phone, this.email, @JsonKey(name: 'avatar_url') this.avatarUrl, @JsonKey(name: 'cover_photo_url') this.coverPhotoUrl, this.bio, @JsonKey(name: 'active_role') this.activeRole, @JsonKey(name: 'available_roles') final  List<String> availableRoles = const <String>[], final  Map<String, dynamic>? ecole, @JsonKey(name: 'unread_notifications_count') this.unreadNotificationsCount = 0, @JsonKey(name: 'unread_communautes_count') this.unreadCommunautesCount = 0, @JsonKey(name: 'unread_messages_count') this.unreadMessagesCount = 0}): _availableRoles = availableRoles,_ecole = ecole,super._();
   factory _UserModel.fromJson(Map<String, dynamic> json) => _$UserModelFromJson(json);
 
 @override final  String id;
@@ -245,6 +254,28 @@ class _UserModel extends UserModel {
   return EqualUnmodifiableListView(_availableRoles);
 }
 
+// Idem : self-only côté Laravel (voir UserResource, ajouté 2026-08-17 pour que le mobile
+// puisse détecter une école fraîchement inscrite encore EN_ATTENTE de validation admin —
+// voir CreatePublicationPage/VideosPage). `ecole` reste une Map brute plutôt qu'une classe
+// freezed dédiée : trois champs, jamais manipulé ailleurs qu'ici, ne justifie pas une
+// nouvelle classe générée.
+ final  Map<String, dynamic>? _ecole;
+// Idem : self-only côté Laravel (voir UserResource, ajouté 2026-08-17 pour que le mobile
+// puisse détecter une école fraîchement inscrite encore EN_ATTENTE de validation admin —
+// voir CreatePublicationPage/VideosPage). `ecole` reste une Map brute plutôt qu'une classe
+// freezed dédiée : trois champs, jamais manipulé ailleurs qu'ici, ne justifie pas une
+// nouvelle classe générée.
+@override Map<String, dynamic>? get ecole {
+  final value = _ecole;
+  if (value == null) return null;
+  if (_ecole is EqualUnmodifiableMapView) return _ecole;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(value);
+}
+
+@override@JsonKey(name: 'unread_notifications_count') final  int unreadNotificationsCount;
+@override@JsonKey(name: 'unread_communautes_count') final  int unreadCommunautesCount;
+@override@JsonKey(name: 'unread_messages_count') final  int unreadMessagesCount;
 
 /// Create a copy of UserModel
 /// with the given fields replaced by the non-null parameter values.
@@ -259,16 +290,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserModel&&(identical(other.id, id) || other.id == id)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.role, role) || other.role == role)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.email, email) || other.email == email)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.coverPhotoUrl, coverPhotoUrl) || other.coverPhotoUrl == coverPhotoUrl)&&(identical(other.bio, bio) || other.bio == bio)&&(identical(other.activeRole, activeRole) || other.activeRole == activeRole)&&const DeepCollectionEquality().equals(other._availableRoles, _availableRoles));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserModel&&(identical(other.id, id) || other.id == id)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.role, role) || other.role == role)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.email, email) || other.email == email)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.coverPhotoUrl, coverPhotoUrl) || other.coverPhotoUrl == coverPhotoUrl)&&(identical(other.bio, bio) || other.bio == bio)&&(identical(other.activeRole, activeRole) || other.activeRole == activeRole)&&const DeepCollectionEquality().equals(other._availableRoles, _availableRoles)&&const DeepCollectionEquality().equals(other._ecole, _ecole)&&(identical(other.unreadNotificationsCount, unreadNotificationsCount) || other.unreadNotificationsCount == unreadNotificationsCount)&&(identical(other.unreadCommunautesCount, unreadCommunautesCount) || other.unreadCommunautesCount == unreadCommunautesCount)&&(identical(other.unreadMessagesCount, unreadMessagesCount) || other.unreadMessagesCount == unreadMessagesCount));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,fullName,role,phone,email,avatarUrl,coverPhotoUrl,bio,activeRole,const DeepCollectionEquality().hash(_availableRoles));
+int get hashCode => Object.hash(runtimeType,id,fullName,role,phone,email,avatarUrl,coverPhotoUrl,bio,activeRole,const DeepCollectionEquality().hash(_availableRoles),const DeepCollectionEquality().hash(_ecole),unreadNotificationsCount,unreadCommunautesCount,unreadMessagesCount);
 
 @override
 String toString() {
-  return 'UserModel(id: $id, fullName: $fullName, role: $role, phone: $phone, email: $email, avatarUrl: $avatarUrl, coverPhotoUrl: $coverPhotoUrl, bio: $bio, activeRole: $activeRole, availableRoles: $availableRoles)';
+  return 'UserModel(id: $id, fullName: $fullName, role: $role, phone: $phone, email: $email, avatarUrl: $avatarUrl, coverPhotoUrl: $coverPhotoUrl, bio: $bio, activeRole: $activeRole, availableRoles: $availableRoles, ecole: $ecole, unreadNotificationsCount: $unreadNotificationsCount, unreadCommunautesCount: $unreadCommunautesCount, unreadMessagesCount: $unreadMessagesCount)';
 }
 
 
@@ -279,7 +310,7 @@ abstract mixin class _$UserModelCopyWith<$Res> implements $UserModelCopyWith<$Re
   factory _$UserModelCopyWith(_UserModel value, $Res Function(_UserModel) _then) = __$UserModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id,@JsonKey(name: 'full_name') String fullName, String? role, String? phone, String? email,@JsonKey(name: 'avatar_url') String? avatarUrl,@JsonKey(name: 'cover_photo_url') String? coverPhotoUrl, String? bio,@JsonKey(name: 'active_role') String? activeRole,@JsonKey(name: 'available_roles') List<String> availableRoles
+ String id,@JsonKey(name: 'full_name') String fullName, String? role, String? phone, String? email,@JsonKey(name: 'avatar_url') String? avatarUrl,@JsonKey(name: 'cover_photo_url') String? coverPhotoUrl, String? bio,@JsonKey(name: 'active_role') String? activeRole,@JsonKey(name: 'available_roles') List<String> availableRoles, Map<String, dynamic>? ecole,@JsonKey(name: 'unread_notifications_count') int unreadNotificationsCount,@JsonKey(name: 'unread_communautes_count') int unreadCommunautesCount,@JsonKey(name: 'unread_messages_count') int unreadMessagesCount
 });
 
 
@@ -296,7 +327,7 @@ class __$UserModelCopyWithImpl<$Res>
 
 /// Create a copy of UserModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? fullName = null,Object? role = freezed,Object? phone = freezed,Object? email = freezed,Object? avatarUrl = freezed,Object? coverPhotoUrl = freezed,Object? bio = freezed,Object? activeRole = freezed,Object? availableRoles = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? fullName = null,Object? role = freezed,Object? phone = freezed,Object? email = freezed,Object? avatarUrl = freezed,Object? coverPhotoUrl = freezed,Object? bio = freezed,Object? activeRole = freezed,Object? availableRoles = null,Object? ecole = freezed,Object? unreadNotificationsCount = null,Object? unreadCommunautesCount = null,Object? unreadMessagesCount = null,}) {
   return _then(_UserModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,fullName: null == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
@@ -308,7 +339,11 @@ as String?,coverPhotoUrl: freezed == coverPhotoUrl ? _self.coverPhotoUrl : cover
 as String?,bio: freezed == bio ? _self.bio : bio // ignore: cast_nullable_to_non_nullable
 as String?,activeRole: freezed == activeRole ? _self.activeRole : activeRole // ignore: cast_nullable_to_non_nullable
 as String?,availableRoles: null == availableRoles ? _self._availableRoles : availableRoles // ignore: cast_nullable_to_non_nullable
-as List<String>,
+as List<String>,ecole: freezed == ecole ? _self._ecole : ecole // ignore: cast_nullable_to_non_nullable
+as Map<String, dynamic>?,unreadNotificationsCount: null == unreadNotificationsCount ? _self.unreadNotificationsCount : unreadNotificationsCount // ignore: cast_nullable_to_non_nullable
+as int,unreadCommunautesCount: null == unreadCommunautesCount ? _self.unreadCommunautesCount : unreadCommunautesCount // ignore: cast_nullable_to_non_nullable
+as int,unreadMessagesCount: null == unreadMessagesCount ? _self.unreadMessagesCount : unreadMessagesCount // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 

@@ -34,6 +34,15 @@ abstract class UserModel with _$UserModel {
     // without them ($this->when(... own profile only ...) on the Laravel side).
     @JsonKey(name: 'active_role') String? activeRole,
     @JsonKey(name: 'available_roles') @Default(<String>[]) List<String> availableRoles,
+    // Idem : self-only côté Laravel (voir UserResource, ajouté 2026-08-17 pour que le mobile
+    // puisse détecter une école fraîchement inscrite encore EN_ATTENTE de validation admin —
+    // voir CreatePublicationPage/VideosPage). `ecole` reste une Map brute plutôt qu'une classe
+    // freezed dédiée : trois champs, jamais manipulé ailleurs qu'ici, ne justifie pas une
+    // nouvelle classe générée.
+    Map<String, dynamic>? ecole,
+    @JsonKey(name: 'unread_notifications_count') @Default(0) int unreadNotificationsCount,
+    @JsonKey(name: 'unread_communautes_count') @Default(0) int unreadCommunautesCount,
+    @JsonKey(name: 'unread_messages_count') @Default(0) int unreadMessagesCount,
   }) = _UserModel;
 
   factory UserModel.fromJson(Map<String, dynamic> json) => _$UserModelFromJson(json);
@@ -50,6 +59,16 @@ abstract class UserModel with _$UserModel {
       avatarUrl: avatarUrl,
       coverPhotoUrl: coverPhotoUrl,
       bio: bio,
+      ecole: ecole != null
+          ? UserEcoleEntity(
+              id: ecole!['id'] as String,
+              nom: ecole!['nom'] as String,
+              statut: ecoleStatutFromString(ecole!['statut'] as String),
+            )
+          : null,
+      unreadNotificationsCount: unreadNotificationsCount,
+      unreadCommunautesCount: unreadCommunautesCount,
+      unreadMessagesCount: unreadMessagesCount,
     );
   }
 }

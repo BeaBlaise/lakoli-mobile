@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../auth/application/auth_controller.dart';
+import '../../shared/widgets/app_badge.dart';
 import '../../shared/widgets/domain/publication_card_view.dart';
 import '../../shared/widgets/states/empty_state_view.dart';
 import '../../shared/widgets/states/error_state_view.dart';
@@ -18,6 +20,7 @@ class FeedPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final feedState = ref.watch(feedControllerProvider);
+    final user = ref.watch(authControllerProvider).valueOrNull;
 
     return Scaffold(
       appBar: AppBar(
@@ -28,15 +31,17 @@ class FeedPage extends ConsumerWidget {
             icon: const Icon(Icons.videocam_outlined),
             tooltip: 'Vidéos',
           ),
-          IconButton(
-            onPressed: () => context.push('/messages'),
-            icon: const Icon(Icons.mail_outline_rounded),
+          _BadgedIconButton(
+            count: user?.unreadMessagesCount ?? 0,
+            icon: Icons.mail_outline_rounded,
             tooltip: 'Messages',
+            onPressed: () => context.push('/messages'),
           ),
-          IconButton(
-            onPressed: () => context.push('/communautes'),
-            icon: const Icon(Icons.groups_outlined),
+          _BadgedIconButton(
+            count: user?.unreadCommunautesCount ?? 0,
+            icon: Icons.groups_outlined,
             tooltip: 'Communautés',
+            onPressed: () => context.push('/communautes'),
           ),
         ],
       ),
@@ -103,6 +108,33 @@ class FeedPage extends ConsumerWidget {
           );
         },
       ),
+    );
+  }
+}
+
+/// Même sémantique que le badge de compteur web (voir HandleInertiaRequests côté Laravel) —
+/// "nombre de conversations/communautés avec du non-lu", pas un total de messages.
+class _BadgedIconButton extends StatelessWidget {
+  const _BadgedIconButton({required this.count, required this.icon, required this.tooltip, required this.onPressed});
+
+  final int count;
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        IconButton(onPressed: onPressed, icon: Icon(icon), tooltip: tooltip),
+        if (count > 0)
+          Positioned(
+            right: 4,
+            top: 4,
+            child: IgnorePointer(child: AppCounterDot(count: count)),
+          ),
+      ],
     );
   }
 }

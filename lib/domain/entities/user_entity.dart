@@ -8,6 +8,30 @@ UserRole userRoleFromString(String? value) => switch (value) {
       _ => UserRole.user,
     };
 
+enum EcoleStatut { enAttente, validee, refusee }
+
+EcoleStatut ecoleStatutFromString(String value) => switch (value) {
+      'VALIDEE' => EcoleStatut.validee,
+      'REFUSEE' => EcoleStatut.refusee,
+      _ => EcoleStatut.enAttente,
+    };
+
+/// École de l'utilisateur courant — présent uniquement sur son propre profil (voir
+/// App\Http\Resources\UserResource côté Laravel, `ecole` est self-only comme phone/email).
+/// `statut` est ce qui permet de savoir si un compte école fraîchement inscrit est encore en
+/// attente de validation admin — voir CreatePublicationPage/VideosPage, qui affichent un état
+/// dédié plutôt qu'un formulaire de publication qui échouerait en 403.
+class UserEcoleEntity extends Equatable {
+  const UserEcoleEntity({required this.id, required this.nom, required this.statut});
+
+  final String id;
+  final String nom;
+  final EcoleStatut statut;
+
+  @override
+  List<Object?> get props => [id, nom, statut];
+}
+
 /// Objet métier pur — ignore tout de la forme JSON de l'API. Voir data/models/user_model.dart
 /// pour la conversion depuis/vers la réponse Laravel.
 class UserEntity extends Equatable {
@@ -22,6 +46,10 @@ class UserEntity extends Equatable {
     this.avatarUrl,
     this.coverPhotoUrl,
     this.bio,
+    this.ecole,
+    this.unreadNotificationsCount = 0,
+    this.unreadCommunautesCount = 0,
+    this.unreadMessagesCount = 0,
   });
 
   final String id;
@@ -38,9 +66,28 @@ class UserEntity extends Equatable {
   final String? avatarUrl;
   final String? coverPhotoUrl;
   final String? bio;
+  final UserEcoleEntity? ecole;
+  final int unreadNotificationsCount;
+  final int unreadCommunautesCount;
+  final int unreadMessagesCount;
 
   bool get canSwitchProfile => availableRoles.length > 1;
 
   @override
-  List<Object?> get props => [id, fullName, role, activeRole, availableRoles, phone, email, avatarUrl, coverPhotoUrl, bio];
+  List<Object?> get props => [
+        id,
+        fullName,
+        role,
+        activeRole,
+        availableRoles,
+        phone,
+        email,
+        avatarUrl,
+        coverPhotoUrl,
+        bio,
+        ecole,
+        unreadNotificationsCount,
+        unreadCommunautesCount,
+        unreadMessagesCount,
+      ];
 }

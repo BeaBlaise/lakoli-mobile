@@ -21,6 +21,12 @@ _UserModel _$UserModelFromJson(Map<String, dynamic> json) => _UserModel(
           ?.map((e) => e as String)
           .toList() ??
       const <String>[],
+  ecole: json['ecole'] as Map<String, dynamic>?,
+  unreadNotificationsCount:
+      (json['unread_notifications_count'] as num?)?.toInt() ?? 0,
+  unreadCommunautesCount:
+      (json['unread_communautes_count'] as num?)?.toInt() ?? 0,
+  unreadMessagesCount: (json['unread_messages_count'] as num?)?.toInt() ?? 0,
 );
 
 Map<String, dynamic> _$UserModelToJson(_UserModel instance) =>
@@ -35,4 +41,8 @@ Map<String, dynamic> _$UserModelToJson(_UserModel instance) =>
       'bio': instance.bio,
       'active_role': instance.activeRole,
       'available_roles': instance.availableRoles,
+      'ecole': instance.ecole,
+      'unread_notifications_count': instance.unreadNotificationsCount,
+      'unread_communautes_count': instance.unreadCommunautesCount,
+      'unread_messages_count': instance.unreadMessagesCount,
     };
