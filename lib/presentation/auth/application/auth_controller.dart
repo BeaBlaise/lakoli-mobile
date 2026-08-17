@@ -65,6 +65,43 @@ class AuthController extends AsyncNotifier<UserEntity?> {
     );
   }
 
+  Future<AppException?> registerEcole({
+    required String nom,
+    required String phone,
+    required String password,
+    String? typeEtablissement,
+    String? region,
+    String? prefecture,
+    String? commune,
+    String? quartier,
+    String? email,
+    String? description,
+  }) async {
+    state = const AsyncLoading<UserEntity?>().copyWithPrevious(state);
+    final result = await ref.read(authRepositoryProvider).registerEcole(
+          nom: nom,
+          phone: phone,
+          password: password,
+          typeEtablissement: typeEtablissement,
+          region: region,
+          prefecture: prefecture,
+          commune: commune,
+          quartier: quartier,
+          email: email,
+          description: description,
+        );
+    return result.when(
+      success: (user) {
+        state = AsyncData(user);
+        return null;
+      },
+      failure: (exception) {
+        state = AsyncData(state.valueOrNull);
+        return exception;
+      },
+    );
+  }
+
   Future<void> logout() async {
     await ref.read(authRepositoryProvider).logout();
     state = const AsyncData(null);

@@ -18,6 +18,33 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Result<UserEntity>> registerEcole({
+    required String nom,
+    required String phone,
+    required String password,
+    String? typeEtablissement,
+    String? region,
+    String? prefecture,
+    String? commune,
+    String? quartier,
+    String? email,
+    String? description,
+  }) {
+    return _runAndPersist(() => _remote.registerEcole(
+          nom: nom,
+          phone: phone,
+          password: password,
+          typeEtablissement: typeEtablissement,
+          region: region,
+          prefecture: prefecture,
+          commune: commune,
+          quartier: quartier,
+          email: email,
+          description: description,
+        ));
+  }
+
+  @override
   Future<Result<UserEntity>> login({required String phone, required String password}) {
     return _runAndPersist(() => _remote.login(phone: phone, password: password));
   }

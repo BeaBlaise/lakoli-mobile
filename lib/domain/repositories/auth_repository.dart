@@ -6,6 +6,22 @@ import '../entities/user_entity.dart';
 abstract interface class AuthRepository {
   Future<Result<UserEntity>> register({required String phone, required String password, required String fullName});
 
+  /// Distinct de [register] — crée à la fois un rôle école et un rôle utilisateur, plus une
+  /// école en attente de validation admin. Voir Api\V1\AuthController::registerEcole() côté
+  /// Laravel.
+  Future<Result<UserEntity>> registerEcole({
+    required String nom,
+    required String phone,
+    required String password,
+    String? typeEtablissement,
+    String? region,
+    String? prefecture,
+    String? commune,
+    String? quartier,
+    String? email,
+    String? description,
+  });
+
   Future<Result<UserEntity>> login({required String phone, required String password});
 
   Future<Result<void>> logout();
